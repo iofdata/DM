@@ -11,7 +11,7 @@ public class connect Connect {
 		try{
 			Class.forName("com.mysql.jdbc.Driver").newInstance();
 			connect = DriverManager.getConnection(url, userName, password )
-
+		             # TODO
 		}
 	}
 }
