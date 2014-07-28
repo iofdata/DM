@@ -3,8 +3,10 @@
 ```
 sysbench --test=cpu --cpu-max-prime=20000 run
 ```
+
 cpu测试主要是进行素数的加法运算，在上面的例子中，
 指定了最大的素数为 20000，自己可以根据机器cpu的性能来适当调整数值。
+
 ```
 sysbench 0.4.10:  multi-threaded system evaluation benchmark
 
@@ -36,6 +38,7 @@ Threads fairness:
 ```
 
 #### 2 线程测试
+
 ```
 sysbench --test=threads --num-threads=64 --thread-yields=100 --thread-locks=2 run
 ```
@@ -68,12 +71,15 @@ Threads fairness:
 ```
 
 #### 3 磁盘IO性能测试，随机读写和删除
+
 ```
 sysbench --test=fileio --num-threads=16 --file-total-size=3G --file-test-mode=rndrw prepare
 sysbench --test=fileio --num-threads=16 --file-total-size=3G --file-test-mode=rndrw run
 sysbench --test=fileio --num-threads=16 --file-total-size=3G --file-test-mode=rndrw cleanup
 ```
+
 上述参数指定了最大创建16个线程，创建的文件总大小为3G，文件读写模式为随机读。
+
 ```
 sysbench 0.4.10:  multi-threaded system evaluation benchmark
 
@@ -155,6 +161,7 @@ Threads fairness:
     execution time (avg/stddev):   0.0000/0.00
 ```
 
+
 ```
 sysbench 0.4.10:  multi-threaded system evaluation benchmark
 
@@ -162,21 +169,27 @@ Removing test files...
 ```
 
 #### 4 内存测试
+
 ```
 sysbench --test=memory --memory-block-size=8k --memory-total-size=4G run
 ```
+
 上述参数指定了本次测试整个过程是在内存中传输 4G 的数据量，每个 block 大小为 8K。
+
 ```
 ```
 
 
 #### 5 mysql 性能测试
 ##### prepare data
+
 ```
 sysbench --test=oltp --mysql-table-engine=innodb --oltp-table-size=1000000 \
 --mysql-socket=/home/data/mysql/mysql.sock --mysql-user=root --mysql-host=localhost \
 --mysql-password=123456 --mysql-db=students --oltp-table-name=test prepare
 ```
+
+
 
 ```
 sysbench 0.4.10:  multi-threaded system evaluation benchmark
@@ -187,6 +200,7 @@ Creating 1000000 records in table 'test'...
 ```
 
 ##### run test
+
 ```
 sysbench --test=oltp --mysql-table-engine=innodb --oltp-table-size=1000000 \
 --mysql-socket=/home/data/mysql/mysql.sock --mysql-user=root --mysql-host=localhost \
@@ -223,6 +237,7 @@ OLTP test statistics:
     read/write requests:                 19000  (5247.91 per sec.)
     other operations:                    2000   (552.41 per sec.)
 
+# 时间统计信息（最小，平均，最大响应时间，以及95%百分比响应时间）
 Test execution summary:
     total time:                          3.6205s
     total number of events:              1000
@@ -233,15 +248,59 @@ Test execution summary:
          max:                               1223.34ms
          approx.  95 percentile:             764.73ms
 
+# 线程公平性统计信息
 Threads fairness:
     events (avg/stddev):           10.0000/0.76
     execution time (avg/stddev):   3.5632/0.03
 ```
 
+###### 参数解释
+1.  --max-requests --max-requests 默认值为10000 ，如果设置了--max-requests 或者使用默认值 ，分析结果的时候主要查看运行时间(total time)，一般情况下，都将--max-requests 赋值为0 ，即不限制请求数量，通过--max-time 来指定测试时长，然后查看系统的每秒事务数。
+
+2.  --oltp-test-mode用以指定测试模式，取值有(simeple,complex,nontrx)，默认是complex。不同模式会执行不同的语句。 具体执行语句如下所示：
+
+```
+# Simple
+SELECT c FROM sbtest WHERE id=N
+
+# Complex(Advanced transactional) 在事务中，可能包含下列语句。
+SELECT c FROM sbtest WHERE id=N
+SELECT c FROM sbtest WHERE id BETWEEN N AND M
+SELECT SUM(K) FROM sbtest WHERE id BETWEEN N and M
+SELECT c FROM sbtest WHERE id between N and M ORDER BY c
+SELECT DISTINCT c FROM sbtest WHERE id BETWEEN N and M ORDER BY c
+UPDATE sbtest SET k=k+1 WHERE id=N
+UPDATE sbtest SET c=N WHERE id=M
+DELETE FROM sbtest WHERE id=N
+INSERT INTO sbtest VALUES (...)
+
+# nontrx(Non-transactional) 这种模式包含下列SQL语句。
+SELECT pad FROM sbtest WHERE id=N
+UPDATE sbtest SET k=k+1 WHERE id=N
+UPDATE sbtest SET c=N WHERE id=M
+DELETE FROM sbtest WHERE id=N
+INSERT INTO sbtest (k, c, pad) VALUES(N, M, S)
+```
+
+3.  simple 与 --oltp-read-only 的区别; simple模式和在complex模式下开启read-only选项都只包含select语句。但是 simple模式只包含最简单的select语句，相反地，complex 模式中，如果我们开启read-only 选项，即--oltp-read-only=on，则会包含复杂的SQL语句。如：
+
+```
+SELECT SUM(K) FROM sbtest WHERE id BETWEEN N and M
+ SELECT DISTINCT c FROM sbtest WHERE id BETWEEN N and M ORDER BY c
+```
+
 ##### clean data
+
 ```
 sysbench --test=oltp --mysql-host=localhost  --mysql-user=root  --mysql-password=123456 \
 --mysql-socket=/home/data/mysql/mysql.sock --mysql-db=students --oltp-table-name=test cleanup
 ```
 
 以上测试内容参考 [MySQL 中文网](http://imysql.cn/node/312)， 结果为一台1核1G主机的性能测试结果。
+
+除了测试oltp，sysbench 0.5还可以进行插入操作的性能测试(insert.lua)，选择操作的性能测试(select.lua)等。
+
+1. [1](http://blog.csdn.net/clh604/article/details/12108477)
+2. [2](http://wenku.baidu.com/view/f0ae451414791711cc7917ba.html)
+3. [3](http://www.linuxidc.com/Linux/2012-11/75054p2.htm)
+4. [4:sysbench(oltp测试)使用说明](http://www.cnblogs.com/minglog/archive/2011/05/10/2042143.html)
