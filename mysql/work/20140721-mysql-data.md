@@ -1,15 +1,15 @@
+### 新虚拟机1K1G
 新建1核1G主机-> jd-th-test01 (CentOS6.05)
 200G硬盘
 私有网络 192.168.2.27
-root -> Mdjd2014
+root -> 
 
 路由ip 
-ssh root@121.201.7.185 //端口252
-Whuxcl2014
+ssh root@ //端口252
+
 
 私有主机
 ssh root@192.168.2.27
-Mdjd2014
 
 
 fdisk /dev/sdc

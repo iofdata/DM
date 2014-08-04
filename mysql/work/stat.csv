@@ -37,4 +37,4 @@ sizes,threads,transactions,trns p/s,deadlocks,dls p/s,read/write requests,r/w re
 
 #library("ggplot2")
 #df <- read.csv("C:\\Users\\tanhao\\Documents\\GitHub\\DM\\mysql\\work\\stat.csv",head=TRUE)
-#ggplot(df, aes(x = factor(sizes), y = trns.p.s, fill=factor(threads))) + geom_bar(stat = "identity", position="dodge") + geom_text(aes())
+#ggplot(df, aes(x = factor(sizes), y = trns.p.s, fill=factor(threads))) + geom_bar(stat = "identity", position="dodge")
