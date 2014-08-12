@@ -14,9 +14,17 @@ try:
     s.prompt() 
     print s.before  
     s.sendline ('df')  
+<<<<<<< HEAD
+    s.prompt() 
+=======
     s.)prompt() 
+>>>>>>> origin/master
     print s.before  
     s.logout() 
 except pxssh.ExceptionPxssh, e:  
     print "pxssh failed on login." 
+<<<<<<< HEAD
     print str(e)
+=======
+    print str(e)
+>>>>>>> origin/master
