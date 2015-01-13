@@ -169,6 +169,22 @@ def makeHtml(ins_list):
 """
     return html
 
+def makefile(ins_list):
+    import csv
+    writer = csv.writer(file('{0}.report.csv'.format(api.api['ZONE']), 'wb'))
+    writer.writerow(['日期', '机器名', 'IP','主机配置','硬盘配置','带宽','主机费用','硬盘费用','网络费用'])
+    cp_num,cp_price,ip_num,ip_price,v_num,v_price,t_price = 0,0,0,0,0,0,0
+    for ins in ins_list:
+        cp_num += 1
+        cp_price += float(ins[u'p_cfg'])
+        if ins[u'band'] != "无":
+            ip_num += 1
+            ip_price += float(ins[u'p_ip'])
+        v_num += ins[u'vols'][u"num"]
+        v_price += float(ins[u'vols'][u"price"])
+        writer.writerow([ins[u'time'],ins[u'name'],ins[u'ip'],ins[u'cfg'],ins[u'vols'][u'size'],ins[u'band'],ins[u'p_cfg'],ins[u'vols'][u'price'],ins[u'p_ip']])
+    print "verbose ending!"    
+        
 def mail(ins_list):
     #receiverList = ["tanhao2013@foxmail.com","tanhao2013@me.com"]
     receiverList = api.api['mails']
@@ -193,7 +209,8 @@ def test(verbose):
     #print json.dumps(ins_list,indent=4)
     mail(ins_list)
     if (verbose != False):
-    	print json.dumps(ins_list,indent=4)
+        makefile(ins_list)
+    	#print json.dumps(ins_list,indent=4)
     	
 def main(args):
 	api.api['ZONE'] = args.zone
